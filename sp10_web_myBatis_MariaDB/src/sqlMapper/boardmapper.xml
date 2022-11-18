@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- boardmapper.xml  DML 명령 처리 -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ 	"http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+ 	
+ <mapper namespace="dao">
+ 	
+ 	<select id="selectAll"  resultType="dto">
+ 		select * from mybatisBoard order by seq desc
+ 	</select>
+ 	 
+ 	 <insert id="insert"   parameterType="dto">
+ 	 	insert into mybatisBoard(seq, title, writer, content, regdate, readcount )
+ 	 		values(board_seq.nextval, #{title} , #{writer}, #{content}, sysdate, 0)
+ 	 </insert>
+ 	 
+ 	 <delete id="delete" parameterType="int">
+ 	 	DELETE FROM MYBATISBOARD WHERE SEQ = #{SEQ}
+ 	 </delete>
+ 	 
+ 	 <select id="detailList"  resultType="dto"  parameterType="int">
+ 	 	select * from mybatisBoard where seq = #{seq}
+ 	 </select>
+ 	 
+ 	  <update id="update" parameterType="dto">
+    	update mybatisBoard
+    		SET title=#{title} , writer=#{writer} , content=#{content} 	
+    		where seq = #{seq}
+    </update>
+    
+     <select id="selectSearch" parameterType="hashMap" resultType="dto">
+    	<!--  
+    		 1. Java 코드
+    		 Map<String, String> map = new HashMap<>(); //collection
+      		 map.put("column",column ); //column : title or writer or content
+      		 map.put("keyvalue", keyvalue); //keyvalue : 김연아
+             
+             2. 함수 호출시 
+             session.selectList("dao.selectSearch" ,map);
+    	
+    	     3. xml에서 
+    		 parameterType="hashMap"
+    		
+    		map key   : column , keyvalue
+    		map value : #{column} , ${column}
+    		
+    		Tip : ${column} : 컬럼명
+    	-->
+    	
+    	SELECT * FROM mybatisBoard
+    	<!-- where writer like '%김연아%' -->
+    	<if test="column != null">
+    		where ${column} like '%' || #{keyvalue} || '%'    	
+    	</if>
+    </select>
+    
+     <select id="selectSearch2" parameterType="hashMap" resultType="dto">
+    	SELECT * FROM mybatisBoard
+    	<where>
+    		<if test="title != null">
+    			title = #{keyvalue}
+    		</if>
+    	    <if test="writer != null">
+    	    	or writer = #{keyvalue}
+    	    </if>
+			<if test="content != null">
+				or content = #{keyvalue}
+			</if>    	
+    	</where>    	
+    </select>
+ 	 
+ </mapper>
